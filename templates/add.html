@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户注册 - 极速下载站</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", sans-serif;
+            background-color: #f5f7fa;
+            line-height: 1.6;
+        }
+
+        /* 注册页面容器 —— 页面居中 */
+        .register-page {
+            max-width: 480px;
+            margin: 60px auto;
+            padding: 0 16px;
+        }
+
+        /* 页面标题 */
+        .page-title {
+            text-align: center;
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        /* 提示消息 */
+        .tips-box {
+            background-color: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        /* 注册表单 */
+        .register-form {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+        }
+
+        /* 表单项 */
+        .form-item {
+            margin-bottom: 20px;
+        }
+
+        .form-item label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+            font-size: 14px;
+        }
+
+        /* 输入框 */
+        .form-item input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.2s;
+            box-sizing: border-box;
+        }
+
+        .form-item input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+        }
+
+        /* 错误提示 */
+        .error-text {
+            display: none;
+            margin-top: 6px;
+            font-size: 12px;
+            color: #dc2626;
+        }
+
+        /* 注册按钮 */
+        #register-btn {
+            width: 100%;
+            padding: 13px;
+            background-color: #2563eb;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: not-allowed;
+            opacity: 0.6;
+            transition: all 0.2s;
+        }
+
+        #register-btn:enabled {
+            cursor: pointer;
+            opacity: 1;
+        }
+
+        #register-btn:enabled:hover {
+            background-color: #1d4ed8;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 导航栏 -->
+    {% include "nav.html" %}
+
+    <!-- 注册表单区域（居中） -->
+    <div class="register-page">
+        <h2 class="page-title">用户注册</h2>
+
+        <!-- 后端传入的提示信息 -->
+        {% if tips %}
+        <div class="tips-box">{{ tips }}</div>
+        {% endif %}
+
+        <!-- 注册表单 -->
+        <form action="/register" method="POST" class="register-form" id="registerForm">
+            <div class="form-item">
+                <label>用户名</label>
+                <input type="text" name="username" id="username" value="{{ username }}" required>
+                <div class="error-text" id="usernameError">用户名只能包含中文、英文、数字、下划线</div>
+            </div>
+
+            <div class="form-item">
+                <label>密码</label>
+                <input type="password" name="password" id="password" value="{{ password }}" required>
+                <div class="error-text" id="passwordError">密码只能包含英文、数字、下划线、@、.</div>
+            </div>
+
+            <div class="form-item">
+                <label>邮箱</label>
+                <input type="email" name="email" id="email" value="{{ email }}" required>
+                <div class="error-text" id="emailError">请输入有效的邮箱地址</div>
+            </div>
+
+            <button type="submit" id="register-btn" disabled>注册</button>
+        </form>
+    </div>
+
+    <script>
+        // 获取元素
+        const username = document.getElementById('username');
+        const password = document.getElementById('password');
+        const email = document.getElementById('email');
+        const registerBtn = document.getElementById('register-btn');
+
+        // 正则规则
+        const usernameReg = /^[\u4e00-\u9fa5a-zA-Z0-9_]+$/;
+        const passwordReg = /^[a-zA-Z0-9_@.]+$/;
+        const emailReg = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        // 实时校验
+        function validateForm() {
+            let isUserValid = usernameReg.test(username.value.trim()) && username.value.trim().length >= 2;
+            let isPwdValid = passwordReg.test(password.value) && password.value.length >= 6;
+            let isEmailValid = emailReg.test(email.value.trim());
+
+            document.getElementById('usernameError').style.display = isUserValid ? 'none' : 'block';
+            document.getElementById('passwordError').style.display = isPwdValid ? 'none' : 'block';
+            document.getElementById('emailError').style.display = isEmailValid ? 'none' : 'block';
+
+            registerBtn.disabled = !(isUserValid && isPwdValid && isEmailValid);
+        }
+
+        username.addEventListener('input', validateForm);
+        password.addEventListener('input', validateForm);
+        email.addEventListener('input', validateForm);
+    </script>
+</body>
+</html>

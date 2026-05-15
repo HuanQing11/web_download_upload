@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户登录 - 极速下载站</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", sans-serif;
+            background-color: #f5f7fa;
+            line-height: 1.6;
+        }
+
+        .login-page {
+            max-width: 480px;
+            margin: 80px auto;
+            padding: 0 16px;
+        }
+
+        .page-title {
+            text-align: center;
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 24px;
+        }
+
+        .tips-box {
+            background-color: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: none;
+        }
+
+        .login-form {
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+        }
+
+        .form-item {
+            margin-bottom: 20px;
+        }
+
+        .form-item label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .form-item input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.2s;
+            box-sizing: border-box;
+        }
+
+        .form-item input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+        }
+
+        #login-btn {
+            width: 100%;
+            padding: 13px;
+            background-color: #2563eb;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: not-allowed;
+            opacity: 0.6;
+            transition: all 0.2s;
+        }
+
+        #login-btn:enabled {
+            cursor: pointer;
+            opacity: 1;
+        }
+
+        #login-btn:enabled:hover {
+            background-color: #1d4ed8;
+        }
+
+        .to-register {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .to-register a {
+            color: #2563eb;
+            text-decoration: none;
+        }
+
+        .to-register a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    {% include "nav.html" %}
+
+    <div class="login-page">
+        <h2 class="page-title">用户登录</h2>
+
+        <!-- 提示框（URL 参数自动显示） -->
+        <div class="tips-box" id="tipsBox"></div>
+
+        <form action="/login" method="POST" class="login-form" id="loginForm">
+            <div class="form-item">
+                <label>用户名</label>
+                <input type="text" name="username" id="username" required>
+            </div>
+
+            <div class="form-item">
+                <label>密码</label>
+                <input type="password" name="password" id="password" required>
+            </div>
+
+            <button type="submit" id="login-btn" disabled>登录</button>
+        </form>
+
+        <div class="to-register">
+            还没有账号？<a href="/register">立即注册</a>
+        </div>
+    </div>
+
+    <script>
+        // ======================================
+        // 修复：从 URL ?tips= 读取并显示提示
+        // ======================================
+        function getUrlParam(name) {
+            const reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+            const r = window.location.search.substr(1).match(reg);
+            if (r != null) {
+                return decodeURIComponent(r[2]);
+            }
+            return "";
+        }
+
+        const tipsText = getUrlParam("tips");
+        const tipsBox = document.getElementById("tipsBox");
+
+        if (tipsText) {
+            tipsBox.innerText = tipsText;
+            tipsBox.style.display = "block";
+        }
+
+        // 登录按钮启用逻辑
+        const username = document.getElementById('username');
+        const password = document.getElementById('password');
+        const loginBtn = document.getElementById('login-btn');
+
+        function checkLogin() {
+            const userVal = username.value.trim();
+            const pwdVal = password.value.trim();
+            loginBtn.disabled = !(userVal && pwdVal);
+        }
+
+        username.addEventListener('input', checkLogin);
+        password.addEventListener('input', checkLogin);
+    </script>
+</body>
+</html>

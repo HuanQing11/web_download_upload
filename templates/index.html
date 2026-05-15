@@ -1,0 +1,228 @@
+{% include "nav.html" %}
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>极速下载站 - 安全稳定的文件上传下载平台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Microsoft YaHei", sans-serif;
+            background-color: #f8fafc;
+            color: #334155;
+            line-height: 1.6;
+        }
+
+        /* 通用容器 */
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding-left: 16px;
+            padding-right: 16px;
+        }
+
+        /* 英雄区 */
+        .hero {
+            padding: 80px 0;
+            background: linear-gradient(to bottom right, #eff6ff, #f0f9ff);
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 700;
+            color: #1e293b;
+            line-height: 1.2;
+            margin-bottom: 16px;
+        }
+
+        .hero p {
+            font-size: 18px;
+            color: #475569;
+            max-width: 800px;
+            margin: 0 auto 32px;
+        }
+
+        /* 按钮组 */
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            justify-content: center;
+        }
+
+        @media (min-width: 640px) {
+            .btn-group {
+                flex-direction: row;
+            }
+        }
+
+        /* 按钮样式 */
+        .btn {
+            display: inline-block;
+            padding: 12px 32px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background-color: #2563eb;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background-color: #1d4ed8;
+        }
+
+        .btn-outline {
+            border: 1px solid #2563eb;
+            color: #2563eb;
+        }
+
+        .btn-outline:hover {
+            background-color: #eff6ff;
+        }
+
+        /* 板块通用 */
+        .section {
+            padding: 64px 0;
+        }
+
+        .bg-white {
+            background-color: #fff;
+        }
+
+        .bg-slate-50 {
+            background-color: #f8fafc;
+        }
+
+        /* 标题 */
+        .section-title {
+            text-align: center;
+            font-size: 24px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 48px;
+        }
+
+        /* 优势网格 */
+        .grid {
+            display: grid;
+            gap: 24px;
+        }
+
+        @media (min-width: 640px) {
+            .grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        /* 优势卡片 */
+        .card {
+            background-color: #f8fafc;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .card h3 {
+            font-weight: 600;
+            font-size: 18px;
+            margin-bottom: 8px;
+            color: #1e293b;
+        }
+
+        .card p {
+            color: #475569;
+        }
+
+        /* 关于 */
+        .about {
+            text-align: center;
+        }
+
+        .about p {
+            color: #475569;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* 底部 */
+        footer {
+            background-color: #fff;
+            padding: 32px 0;
+            border-top: 1px solid #e2e8f0;
+            text-align: center;
+            font-size: 14px;
+            color: #64748b;
+        }
+    </style>
+</head>
+<body>
+
+<!-- 英雄区 -->
+<section class="hero">
+    <div class="container">
+        <h1>安全、极速、纯净的文件传输平台</h1>
+        <p>支持压缩包上传与分享，无捆绑、无广告，为个人与团队提供稳定下载服务</p>
+        <div class="btn-group">
+            <a href="/register" class="btn btn-primary">免费注册账号</a>
+            <a href="/login" class="btn btn-outline">已有账号登录</a>
+        </div>
+    </div>
+</section>
+
+<!-- 特点 -->
+<section class="section bg-white">
+    <div class="container">
+        <h2 class="section-title">平台优势</h2>
+        <div class="grid">
+            <div class="card">
+                <h3>🔒 安全可靠</h3>
+                <p>文件仅对注册用户开放，后台严格管理，保障隐私安全。</p>
+            </div>
+            <div class="card">
+                <h3>⚡ 极速上传下载</h3>
+                <p>高速服务器带宽，大文件压缩包也能快速完成传输。</p>
+            </div>
+            <div class="card">
+                <h3>🧩 纯净无广告</h3>
+                <p>界面简洁清爽，无捆绑软件，无跳转广告，体验极佳。</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 关于 -->
+<section id="about" class="section bg-slate-50">
+    <div class="container about">
+        <h2 class="section-title">关于本站</h2>
+        <p>极速下载站致力于为用户提供简单、高效、安全的文件分享服务，支持 ZIP / 7z 格式管理，适合个人资料备份、小组资源共享、文件分发下载。</p>
+    </div>
+</section>
+
+<!-- 底部 -->
+<footer>
+    <div class="container">
+        © 极速下载站 - 所有资源仅供合法使用
+    </div>
+</footer>
+
+</body>
+</html>

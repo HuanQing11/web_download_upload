@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文件上传 - 极速下载站</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", system-ui, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            line-height: 1.6;
+        }
+
+        /* 上传页面容器 —— 居中 */
+        .upload-page {
+            max-width: 500px;
+            margin: 70px auto;
+            padding: 0 16px;
+        }
+
+        /* 标题 */
+        .page-title {
+            text-align: center;
+            font-size: 26px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 12px;
+        }
+
+        /* 提示信息 */
+        .tips-box {
+            background-color: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin: 0 auto 24px;
+            text-align: center;
+            max-width: 450px;
+        }
+
+        /* 上传卡片 */
+        .upload-card {
+            background: #ffffff;
+            padding: 36px 30px;
+            border-radius: 14px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        }
+
+        /* 隐藏原生文件输入 */
+        input[type="file"] {
+            display: none;
+        }
+
+        /* 自定义文件选择按钮 */
+        .file-label {
+            display: block;
+            width: 100%;
+            padding: 14px 20px;
+            border-radius: 10px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            font-size: 15px;
+            font-weight: 500;
+            color: #374151;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 20px;
+        }
+
+        .file-label:hover {
+            background: #eff6ff;
+            border-color: #2563eb;
+            color: #2563eb;
+        }
+
+        /* 上传按钮 */
+        .upload-btn {
+            width: 100%;
+            padding: 14px;
+            background-color: #2563eb;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .upload-btn:hover {
+            background-color: #1d4ed8;
+            transform: translateY(-1px);
+        }
+
+        /* 已选文件提示 */
+        #file-name {
+            text-align: center;
+            font-size: 14px;
+            color: #4b5563;
+            margin-bottom: 16px;
+            word-break: break-all;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 导航栏 -->
+    {% include "nav.html" %}
+
+    <!-- 上传区域 -->
+    <div class="upload-page">
+        <h2 class="page-title">文件上传</h2>
+
+        <!-- 后端提示 -->
+        {% if tips %}
+        <div class="tips-box">{{ tips }}</div>
+        {% endif %}
+
+        <div class="upload-card">
+            <form method="POST" enctype="multipart/form-data">
+                <label for="file" class="file-label">选择文件</label>
+                <input type="file" name="file" id="file" required>
+                <div id="file-name">未选择任何文件</div>
+                <button type="submit" class="upload-btn">确认上传</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // 显示选中的文件名
+        const fileInput = document.getElementById('file');
+        const fileName = document.getElementById('file-name');
+
+        fileInput.addEventListener('change', function () {
+            if (this.files.length > 0) {
+                fileName.textContent = '已选择：' + this.files[0].name;
+            } else {
+                fileName.textContent = '未选择任何文件';
+            }
+        });
+    </script>
+</body>
+</html>
