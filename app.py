@@ -1,4 +1,5 @@
 import os
+import shutil
 from functools import wraps
 from flask import Flask, render_template, request, redirect, session, abort, send_from_directory
 from flask_migrate import Migrate
@@ -40,6 +41,7 @@ class Base(DeclarativeBase):
 db = SQLAlchemy(app=app,model_class=Base)
 migrate = Migrate(app=app,db=db)
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+os.makedirs(app.config.get('DELETE_FOLDER', 'delete'), exist_ok=True)
 
 class User(db.Model):
     __tablename__ = 'user'
@@ -129,6 +131,12 @@ def user_find(find_username, find_email):
         return '邮箱已被占用'
     else:
         return None
+
+def is_first_user():
+    """检查是否为首个用户"""
+    count = db.session.query(User).count()
+    return count == 0
+
 @app.route('/register', methods=['GET',"POST"])
 def register():
     if request.method == 'GET':
@@ -141,9 +149,15 @@ def register():
         if tips is True:
             user = User(username=username, email=email)
             user.set_password(password)
+            # 第一个注册的用户自动成为管理员
+            if is_first_user():
+                user.is_admin = True
+                admin_tip = '（已设置为管理员）'
+            else:
+                admin_tip = ''
             db.session.add(user)
             db.session.commit()
-            tips='注册成功'
+            tips=f'注册成功{admin_tip}'
             return redirect(f'/login?tips={tips}')
         else:
             return render_template('add.html', tips=tips,email=email,username=username,password=password,)
@@ -307,6 +321,100 @@ def delete_user():
     db.session.commit()
     return redirect('/admin')
 
+
+
+# ========== 回收站管理 ==========
+
+@app.route('/admin/trash')
+@admin_required
+def admin_trash():
+    """管理员查看回收站"""
+    trash_items = []
+    delete_folder = app.config.get('DELETE_FOLDER', 'delete')
+    
+    if os.path.exists(delete_folder):
+        for user_folder in os.listdir(delete_folder):
+            user_path = os.path.join(delete_folder, user_folder)
+            if os.path.isdir(user_path):
+                for filename in os.listdir(user_path):
+                    file_path = os.path.join(user_path, filename)
+                    if os.path.isfile(file_path):
+                        trash_items.append({
+                            'user_folder': user_folder,
+                            'filename': filename,
+                            'delete_time': os.path.getmtime(file_path),
+                            'file_size': os.path.getsize(file_path)
+                        })
+    
+    return render_template('admin.html', trash_items=trash_items)
+
+
+@app.route('/admin/trash/restore', methods=['POST'])
+@admin_required
+def admin_restore_file():
+    """管理员恢复回收站文件"""
+    user_folder = request.form.get('user_folder')
+    filename = request.form.get('filename')
+    
+    if not user_folder or not filename:
+        return redirect('/admin/trash')
+    
+    delete_folder = app.config.get('DELETE_FOLDER', 'delete')
+    trash_path = os.path.join(delete_folder, user_folder, filename)
+    
+    # 安全检查
+    safe_path = os.path.abspath(delete_folder)
+    trash_file = os.path.abspath(trash_path)
+    if not trash_file.startswith(safe_path):
+        abort(403)
+    
+    if os.path.exists(trash_file) and os.path.isfile(trash_file):
+        # 提取原始文件名（移除开头的编号）
+        original_filename = '_'.join(filename.split('_')[1:]) if '_' in filename else filename
+        upload_path = os.path.join(app.config['UPLOAD_FOLDER'], user_folder, original_filename)
+        
+        os.makedirs(os.path.dirname(upload_path), exist_ok=True)
+        os.rename(trash_file, upload_path)
+    
+    return redirect('/admin/trash')
+
+
+@app.route('/admin/trash/delete', methods=['POST'])
+@admin_required
+def admin_delete_trash():
+    """管理员永久删除回收站文件"""
+    user_folder = request.form.get('user_folder')
+    filename = request.form.get('filename')
+    
+    if not user_folder or not filename:
+        return redirect('/admin/trash')
+    
+    delete_folder = app.config.get('DELETE_FOLDER', 'delete')
+    trash_path = os.path.join(delete_folder, user_folder, filename)
+    
+    # 安全检查
+    safe_path = os.path.abspath(delete_folder)
+    trash_file = os.path.abspath(trash_path)
+    if not trash_file.startswith(safe_path):
+        abort(403)
+    
+    if os.path.exists(trash_file) and os.path.isfile(trash_file):
+        os.remove(trash_file)
+    
+    return redirect('/admin/trash')
+
+
+@app.route('/admin/trash/clear', methods=['POST'])
+@admin_required
+def admin_clear_trash():
+    """管理员清空所有回收站"""
+    delete_folder = app.config.get('DELETE_FOLDER', 'delete')
+    
+    if os.path.exists(delete_folder):
+        shutil.rmtree(delete_folder)
+        os.makedirs(delete_folder, exist_ok=True)
+    
+    return redirect('/admin/trash')
 
 
 @app.route('/admin/find')
