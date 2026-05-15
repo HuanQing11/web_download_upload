@@ -9,6 +9,11 @@
       {% if session.user_id %}
         <a href="/home" class="nav-link">文件中心</a>
         <a href="/upload" class="nav-link">上传文件</a>
+        
+        <!-- 管理员后台入口 -->
+        {% if session.is_admin %}
+          <a href="/admin" class="nav-link" style="color: #f59e0b; font-weight: 500;">⚙️ 管理后台</a>
+        {% endif %}
 
         <a href="/logout" class="btn-logout">退出登陆</a>
       {% else %}

@@ -243,6 +243,71 @@
             font-size: 13px;
             margin-top: 8px;
         }
+
+        /* 回收站特定样式 */
+        .trash-empty {
+            padding: 60px 40px;
+            text-align: center;
+            color: #9ca3af;
+        }
+
+        .trash-empty-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+
+        .btn-restore {
+            background: #10b981;
+            color: #fff;
+        }
+
+        .btn-restore:hover {
+            background: #059669;
+        }
+
+        /* 侧边栏链接样式 */
+        .sidebar a:hover {
+            opacity: 0.8;
+        }
+
+        /* 仪表板卡片 */
+        .dashboard-card {
+            padding: 20px;
+            background: var(--gray-50);
+            border-radius: 8px;
+            border-left: 4px solid;
+        }
+
+        .dashboard-card.primary {
+            border-left-color: var(--primary);
+        }
+
+        .dashboard-card.success {
+            border-left-color: #10b981;
+        }
+
+        .dashboard-card.warning {
+            border-left-color: #f59e0b;
+        }
+
+        .dashboard-label {
+            font-size: 12px;
+            color: #9ca3af;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .dashboard-value {
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        .dashboard-item {
+            font-size: 14px;
+            color: var(--gray-700);
+            margin-top: 4px;
+        }
     </style>
 </head>
 
@@ -254,10 +319,16 @@
         <!-- 侧边栏 -->
         <div class="sidebar">
             <h2 class="sidebar-title">⚙️ 后台管理</h2>
+            <div style="margin-top: 24px;">
+                <a href="/admin_user" style="display: block; padding: 12px; border-radius: 8px; background: {% if page == 'users' %}var(--primary){% else %}var(--gray-100){% endif %}; color: {% if page == 'users' %}#fff{% else %}var(--gray-700){% endif %}; text-decoration: none; margin-bottom: 8px; transition: 0.2s;">👥 用户管理</a>
+                <a href="/admin/trash" style="display: block; padding: 12px; border-radius: 8px; background: {% if page == 'trash' %}var(--primary){% else %}var(--gray-100){% endif %}; color: {% if page == 'trash' %}#fff{% else %}var(--gray-700){% endif %}; text-decoration: none; margin-bottom: 8px; transition: 0.2s;">🗑️ 回收站</a>
+                <a href="/admin" style="display: block; padding: 12px; border-radius: 8px; background: {% if page == 'home' %}var(--primary){% else %}var(--gray-100){% endif %}; color: {% if page == 'home' %}#fff{% else %}var(--gray-700){% endif %}; text-decoration: none; transition: 0.2s;">📊 仪表板</a>
+            </div>
         </div>
 
         <!-- 主内容 -->
         <div class="main">
+            {% if page == 'users' or page is not defined %}
             <!-- 用户查询 -->
             <div class="card">
                 <h3 class="card-title">用户查询与管理</h3>
@@ -307,6 +378,84 @@
                 </button>
                 <div class="danger-warning">警告：该操作会删除所有用户，无法恢复，请谨慎使用！</div>
             </div>
+            {% endif %}
+
+            <!-- 回收站管理 -->
+            {% if page == 'trash' %}
+            <div class="card">
+                <h3 class="card-title">🗑️ 回收站管理</h3>
+                
+                {% if trash_items %}
+                <div style="margin-bottom: 16px; display: flex; gap: 12px;">
+                    <form action="/admin/trash/clear" method="POST" style="display: inline;">
+                        <button type="submit" class="btn btn-danger" onclick="return confirm('确定要清空所有回收站文件？此操作无法恢复！')">
+                            🧹 清空回收站
+                        </button>
+                    </form>
+                </div>
+
+                <div style="overflow-x: auto;">
+                    <table class="user-table">
+                        <tr>
+                            <th>用户</th>
+                            <th>文件名</th>
+                            <th>文件大小</th>
+                            <th>删除时间</th>
+                            <th>操作</th>
+                        </tr>
+                        {% for item in trash_items %}
+                        <tr>
+                            <td>{{ item.user_folder }}</td>
+                            <td title="{{ item.filename }}" style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ item.filename }}</td>
+                            <td>{{ "%.2f"|format(item.file_size / 1024 / 1024) }} MB</td>
+                            <td>{{ item.delete_time | strftime }}</td>
+                            <td>
+                                <form action="/admin/trash/restore" method="POST" style="display: inline;">
+                                    <input type="hidden" name="user_folder" value="{{ item.user_folder }}">
+                                    <input type="hidden" name="filename" value="{{ item.filename }}">
+                                    <button type="submit" class="btn" style="background: #10b981; color: #fff; padding: 6px 12px; font-size: 13px; border-radius: 6px; border: none; cursor: pointer;">恢复</button>
+                                </form>
+                                <form action="/admin/trash/delete" method="POST" style="display: inline;">
+                                    <input type="hidden" name="user_folder" value="{{ item.user_folder }}">
+                                    <input type="hidden" name="filename" value="{{ item.filename }}">
+                                    <button type="submit" class="delete-btn" onclick="return confirm('确定要永久删除 {{ item.filename }}？此操作无法恢复！')">删除</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+                {% else %}
+                <div style="padding: 40px; text-align: center; color: #9ca3af;">
+                    <div style="font-size: 48px; margin-bottom: 12px;">📭</div>
+                    <p>回收站为空</p>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <!-- 仪表板 -->
+            {% if page == 'home' %}
+            <div class="card">
+                <h3 class="card-title">📊 系统仪表板</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+                    <div style="padding: 20px; background: var(--gray-50); border-radius: 8px; border-left: 4px solid var(--primary);">
+                        <div style="font-size: 12px; color: #9ca3af; margin-bottom: 8px;">总用户数</div>
+                        <div style="font-size: 28px; font-weight: 600; color: var(--gray-900);">{{ count }}</div>
+                    </div>
+                    <div style="padding: 20px; background: var(--gray-50); border-radius: 8px; border-left: 4px solid #10b981;">
+                        <div style="font-size: 12px; color: #9ca3af; margin-bottom: 8px;">管理员功能</div>
+                        <div style="font-size: 14px; color: var(--gray-700);">✅ 用户管理</div>
+                        <div style="font-size: 14px; color: var(--gray-700);">✅ 回收站管理</div>
+                    </div>
+                    <div style="padding: 20px; background: var(--gray-50); border-radius: 8px; border-left: 4px solid #f59e0b;">
+                        <div style="font-size: 12px; color: #9ca3af; margin-bottom: 8px;">系统状态</div>
+                        <div style="font-size: 14px; color: var(--gray-700);">✅ 数据库连接正常</div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
         </div>
     </div>
 

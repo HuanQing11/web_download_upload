@@ -1,5 +1,6 @@
 import os
 import shutil
+from datetime import datetime
 from functools import wraps
 from flask import Flask, render_template, request, redirect, session, abort, send_from_directory
 from flask_migrate import Migrate
@@ -30,6 +31,15 @@ flask db upgrade
 
 app = Flask(__name__)
 app.config.from_object(config)
+
+# 自定义Jinja2过滤器
+@app.template_filter('strftime')
+def strftime_filter(timestamp):
+    """将时间戳转换为格式化的日期时间字符串"""
+    if timestamp:
+        return datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S')
+    return 'N/A'
+
 class Base(DeclarativeBase):
     meta = MetaData(naming_convention={
         "ix": 'ix_%(column_0_label)s',
@@ -106,6 +116,7 @@ def login():
             user = db.session.scalar(db.select(User).where(User.email == email))
         if user and user.check_password(password):
             session['user_id'] = user.id
+            session['is_admin'] = user.is_admin
             #设置True会在31天后过期
             if remember:
                 session.permanent = True
@@ -296,14 +307,14 @@ def admin_required(f):
 def admin():
     with app.app_context():
         count = User.query.count()
-        return render_template('admin.html',count=count)
+        return render_template('admin.html', count=count, page='home')
 
 
 @app.route('/admin_user')
 @admin_required
 def admin_user():
     users = db.session.scalars(db.select(User))
-    return render_template('admin.html',users=users)
+    return render_template('admin.html', users=users, page='users')
 @app.route('/admin/delete_all')
 @admin_required
 def delete_all():
@@ -346,7 +357,7 @@ def admin_trash():
                             'file_size': os.path.getsize(file_path)
                         })
     
-    return render_template('admin.html', trash_items=trash_items)
+    return render_template('admin.html', trash_items=trash_items, page='trash')
 
 
 @app.route('/admin/trash/restore', methods=['POST'])
